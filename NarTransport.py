@@ -3,6 +3,10 @@ __author__ = 'marcusfaust'
 import os
 import requests
 from requests.auth import HTTPBasicAuth
+from app import db
+import models
+
+
 
 
 class MitrendSession:
@@ -37,8 +41,38 @@ class MitrendSession:
 
         return r.text
 
+class BoxSession:
+
+    box_token_baseurl = "https://app.box.com/api/oath2/token"
+    box_client_id = os.environ.get('BOX_CLIENT_ID')
+    box_client_secret = os.environ.get('BOX_CLIENT_SECRET')
+
+    def __init__(self):
+        self.refresh_token = models.RefreshToken.query.filter_by(id=1).first()
+
+    def getAccessToken(self):
+
+        params = {"grant_type": "refresh_token", "client_id": self.box_client_id, "client_secret": self.box_client_secret, "refresh_token": self.refresh_token}
+        r = requests.post(self.box_token_baseurl,data=params)
+
+        print "hello"
+        results = r.json()
+        token = results['refresh_token']
+
+        return tokens
+
+
+
+
+
 
 if __name__ == '__main__':
+
+    #Construct Box Session Object
+    boxsession = BoxSession()
+
+    #Refresh Access Token
+    boxsession.getAccessToken()
 
     # Construct MiTrend Session Object
     session1 = MitrendSession()
