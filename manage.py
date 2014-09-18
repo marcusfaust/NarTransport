@@ -2,7 +2,7 @@ __author__ = 'marcusfaust'
 
 from flask.ext.script import Manager
 from flask.ext.migrate import Migrate, MigrateCommand
-import os
+
 
 from app import app, db
 app.config.from_object('config')
@@ -14,3 +14,5 @@ manager.add_command('db', MigrateCommand)
 
 if __name__ == '__main__':
     manager.run()
+    db.create_all()
+    db.session.commit()

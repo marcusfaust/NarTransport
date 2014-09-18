@@ -5,7 +5,8 @@ from app import db
 class RefreshToken(db.Model):
     __tablename__ = 'rtokens'
 
-    refreshtoken = db.Column(db.String(), primary_key=True)
+    id = db.Column(db.Integer(), primary_key=True)
+    token = db.Column(db.String())
 
     def __repr__(self):
-        return '<token {}>'.format(self.refreshtoken)
+        return '<token {}>'.format(self.token)
