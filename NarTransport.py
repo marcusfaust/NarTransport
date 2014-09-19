@@ -35,8 +35,6 @@ class MitrendSession:
         r = requests.post(upload_url, auth=self.auth, data=params, files=files)
 
         print "Mitrend Upload of " + filepath + " Complete."
-
-
         return r.text
 
     def submit(self):
@@ -112,9 +110,7 @@ class BoxSession:
         headers = {"Authorization": "Bearer " + atoken}
 
         print "Begin Download of " + fileNAME
-
         with open(fileNAME, 'wb') as file:
-
             r = requests.get(box_file_url, headers=headers, stream=True, timeout=3600)
             for chunk in r.iter_content(chunk_size=1024):
                 if chunk:
@@ -122,9 +118,6 @@ class BoxSession:
                     file.flush()
 
         print "Download Complete of " + fileNAME
-
-
-
 
 
 if __name__ == '__main__':
@@ -167,16 +160,3 @@ if __name__ == '__main__':
 
                 #Submit Mitrend Assessment
                 mitrendsession.submit()
-
-
-    print "hello"
-
-
-    # Create new MiTrend Assessment
-    #session1.new_assessment("test1234")
-
-    # Upload zipped NAR file to MiTrend
-    # session1.upload_file("/tmp/nar.zip", "VNX")
-
-    # Submit MiTrend Assessment
-    #session1.submit()
