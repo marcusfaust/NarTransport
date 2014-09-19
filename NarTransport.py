@@ -8,6 +8,7 @@ import models
 
 
 class MitrendSession:
+
     def __init__(self):
         self.baseurl = "https://beta.mitrend.com/api/assessments"
         self.assessment_id = ""
@@ -28,7 +29,13 @@ class MitrendSession:
         fileobj = open(filepath, 'rb')
         params = {"device_name": device_type, "file": "nar.zip"}
         files = {"file": fileobj}
+
+        print "Mitrend Upload of " + filepath + " Started."
+
         r = requests.post(upload_url, auth=self.auth, data=params, files=files)
+
+        print "Mitrend Upload of " + filepath + " Complete."
+
 
         return r.text
 
@@ -71,35 +78,105 @@ class BoxSession:
 
         box_folders_url = self.box_api_baseurl + "/folders/" + folderID + "/items"
         headers = {"Authorization": "Bearer " + atoken}
-        r = requests.get(box_folders_url, headers=headers)
+        params = {"fields": "name"}
+        r = requests.get(box_folders_url, params=params, headers=headers)
         results = r.json()
 
         return results
+
+    def getFoldersFromContents(self, contents):
+
+        folders = []
+        for x in contents['entries']:
+            if x['type'] == 'folder':
+                folders.append(x)
+
+        return folders
+
+    def getFilesFromContents(self, contents):
+
+        files = []
+        for x in contents['entries']:
+            if x['type'] == 'file':
+                files.append(x)
+
+        return files
+
+    def getZipFilesInFolder(self, folderID):
+
+        pass
+
+    def downloadFile(self, fileNAME, fileID, atoken):
+
+        box_file_url = self.box_api_baseurl + "/files/" + fileID + "/content"
+        headers = {"Authorization": "Bearer " + atoken}
+
+        print "Begin Download of " + fileNAME
+
+        with open(fileNAME, 'wb') as file:
+
+            r = requests.get(box_file_url, headers=headers, stream=True, timeout=3600)
+            for chunk in r.iter_content(chunk_size=1024):
+                if chunk:
+                    file.write(chunk)
+                    file.flush()
+
+        print "Download Complete of " + fileNAME
+
+
+
 
 
 if __name__ == '__main__':
 
     box_incoming_folder_id = os.environ.get('BOX_INCOMING_FOLDER_ID')
     box_archive_folder_id = os.environ.get('BOX_ARCHIVE_FOLDER_ID')
+    incoming_contents = {}
+    incoming_folders = []
 
     # Construct Box Session Object
     boxsession = BoxSession()
 
+    # Construct MiTrend Session Object
+    mitrendsession = MitrendSession()
+
     #Refresh Access Token
     access_token = boxsession.getAccessToken()
 
-    #Obtain Contents of Incoming Folder
+    #Obtain Contents of Incoming Folder and Extract Out Folders
     incoming_contents = boxsession.getFolderContents(box_incoming_folder_id, access_token)
+    incoming_folders = boxsession.getFoldersFromContents(incoming_contents)
+
+    #For Every ZIP File in Subfolders, Download ZIP and Create Assessment
+    for folder in incoming_folders:
+        folder_contents = boxsession.getFolderContents(folder['id'], access_token)
+        folder_files = boxsession.getFilesFromContents(folder_contents)
+
+        #Download each file - hopefully zip file
+        if folder_files:
+            for zfile in folder_files:
+
+                #Grab file from Box.net
+                boxsession.downloadFile(zfile['name'], zfile['id'], access_token)
+
+                #Attempt to create a Mitrends Assessment
+                mitrendsession.new_assessment(folder['name'])
+
+                #Upload downloaded file
+                mitrendsession.upload_file(zfile['name'], "VNX")
+
+                #Submit Mitrend Assessment
+                mitrendsession.submit()
+
+
     print "hello"
 
-    # Construct MiTrend Session Object
-    #session1 = MitrendSession()
 
     # Create new MiTrend Assessment
     #session1.new_assessment("test1234")
 
     # Upload zipped NAR file to MiTrend
-    #session1.upload_file("/tmp/nar.zip", "VNX")
+    # session1.upload_file("/tmp/nar.zip", "VNX")
 
     # Submit MiTrend Assessment
     #session1.submit()
