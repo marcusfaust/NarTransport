@@ -7,10 +7,7 @@ from app import db
 import models
 
 
-
-
 class MitrendSession:
-
     def __init__(self):
         self.baseurl = "https://beta.mitrend.com/api/assessments"
         self.assessment_id = ""
@@ -41,9 +38,9 @@ class MitrendSession:
 
         return r.text
 
-class BoxSession:
 
-    box_token_baseurl = "https://app.box.com/api/oath2/token"
+class BoxSession:
+    box_token_baseurl = "https://app.box.com/api/oauth2/token"
     box_client_id = os.environ.get('BOX_CLIENT_ID')
     box_client_secret = os.environ.get('BOX_CLIENT_SECRET')
 
@@ -52,28 +49,30 @@ class BoxSession:
 
     def getAccessToken(self):
 
-        params = {"grant_type": "refresh_token", "client_id": self.box_client_id, "client_secret": self.box_client_secret, "refresh_token": self.refresh_token}
-        r = requests.post(self.box_token_baseurl,data=params)
+        params = {"grant_type": "refresh_token", \
+                  "client_id": self.box_client_id, \
+                  "client_secret": self.box_client_secret, \
+                  "refresh_token": str(self.refresh_token.token)}
 
-        print "hello"
+        r = requests.post(self.box_token_baseurl, data=params)
         results = r.json()
-        token = results['refresh_token']
+        rtoken = results['refresh_token']
+        atoken = results['access_token']
 
-        return tokens
+        # Store refresh_token
+        models.RefreshToken.query.filter_by(id=1).update(dict(token=rtoken))
+        db.session.commit()
 
-
-
-
+        return atoken
 
 
 if __name__ == '__main__':
-
-    #Construct Box Session Object
+    # Construct Box Session Object
     boxsession = BoxSession()
 
     #Refresh Access Token
-    boxsession.getAccessToken()
-
+    token = boxsession.getAccessToken()
+    print "hello"
     # Construct MiTrend Session Object
     session1 = MitrendSession()
 
