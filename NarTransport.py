@@ -40,6 +40,8 @@ class MitrendSession:
 
 
 class BoxSession:
+
+    box_api_baseurl = "https://api.box.com/2.0/"
     box_token_baseurl = "https://app.box.com/api/oauth2/token"
     box_client_id = os.environ.get('BOX_CLIENT_ID')
     box_client_secret = os.environ.get('BOX_CLIENT_SECRET')
@@ -65,14 +67,30 @@ class BoxSession:
 
         return atoken
 
+    def getFolderContents(self, folderID, atoken):
+
+        box_folders_url = self.box_api_baseurl + "/folders/" + folderID + "/items"
+        headers = {"Authorization": "Bearer " + atoken}
+        r = requests.get(box_folders_url, headers=headers)
+        results = r.json()
+
+        return results
+
 
 if __name__ == '__main__':
+
+    box_incoming_folder_id = os.environ.get('BOX_INCOMING_FOLDER_ID')
+    box_archive_folder_id = os.environ.get('BOX_ARCHIVE_FOLDER_ID')
+
     # Construct Box Session Object
     boxsession = BoxSession()
 
     #Refresh Access Token
     access_token = boxsession.getAccessToken()
-    print access_token
+
+    #Obtain Contents of Incoming Folder
+    incoming_contents = boxsession.getFolderContents(box_incoming_folder_id, access_token)
+    print "hello"
 
     # Construct MiTrend Session Object
     #session1 = MitrendSession()
