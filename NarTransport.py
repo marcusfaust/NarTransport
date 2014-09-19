@@ -71,18 +71,17 @@ if __name__ == '__main__':
     boxsession = BoxSession()
 
     #Refresh Access Token
-    token = boxsession.getAccessToken()
-    print "hello"
+    access_token = boxsession.getAccessToken()
+    print access_token
+
     # Construct MiTrend Session Object
-    session1 = MitrendSession()
+    #session1 = MitrendSession()
 
     # Create new MiTrend Assessment
-    session1.new_assessment("test1234")
+    #session1.new_assessment("test1234")
 
     # Upload zipped NAR file to MiTrend
-    session1.upload_file("/tmp/nar.zip", "VNX")
+    #session1.upload_file("/tmp/nar.zip", "VNX")
 
     # Submit MiTrend Assessment
-    session1.submit()
-
-    print "hello"
+    #session1.submit()
