@@ -2,6 +2,8 @@ __author__ = 'marcusfaust'
 
 import os
 import requests
+import json
+from datetime import datetime
 from requests.auth import HTTPBasicAuth
 from app import db
 import models
@@ -100,8 +102,25 @@ class BoxSession:
 
         return files
 
-    def getZipFilesInFolder(self, folderID):
+    def renameFolder(self, folderID, newName, atoken):
 
+        box_folder_url = self.box_api_baseurl + "/folders/" + folderID
+        headers = {"Authorization": "Bearer " + atoken}
+        params = {"name": newName}
+        r = requests.put(box_folder_url, data=json.dumps(params), headers=headers)
+        return r.json()
+
+    def moveFolder(self, folderID, parentID, atoken):
+
+        box_folder_url = self.box_api_baseurl + "/folders/" + folderID
+        headers = {"Authorization": "Bearer " + atoken}
+        params = {"parent": {"id": parentID}}
+        r = requests.put(box_folder_url, data=json.dumps(params), headers=headers)
+        results = r.json()
+
+        return r.json()
+
+    def getZipFilesInFolder(self, folderID):
         pass
 
     def downloadFile(self, fileNAME, fileID, atoken):
@@ -142,6 +161,7 @@ if __name__ == '__main__':
 
     #For Every ZIP File in Subfolders, Download ZIP and Create Assessment
     for folder in incoming_folders:
+
         folder_contents = boxsession.getFolderContents(folder['id'], access_token)
         folder_files = boxsession.getFilesFromContents(folder_contents)
 
@@ -160,3 +180,13 @@ if __name__ == '__main__':
 
                 #Submit Mitrend Assessment
                 mitrendsession.submit()
+
+                #Delete file locally
+                os.remove(zfile['name'])
+
+            #Append Datetime to Folder Name
+            folderWithDate = folder['name'] + "_" + datetime.now().isoformat()
+            boxsession.renameFolder(folder['id'],folderWithDate, access_token)
+
+            #Move Folder to Archive Folder
+            boxsession.moveFolder(folder['id'], box_archive_folder_id, access_token)
