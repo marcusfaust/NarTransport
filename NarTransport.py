@@ -160,33 +160,38 @@ if __name__ == '__main__':
     incoming_folders = boxsession.getFoldersFromContents(incoming_contents)
 
     #For Every ZIP File in Subfolders, Download ZIP and Create Assessment
-    for folder in incoming_folders:
+    if incoming_folders:
+        for folder in incoming_folders:
 
-        folder_contents = boxsession.getFolderContents(folder['id'], access_token)
-        folder_files = boxsession.getFilesFromContents(folder_contents)
+            folder_contents = boxsession.getFolderContents(folder['id'], access_token)
+            folder_files = boxsession.getFilesFromContents(folder_contents)
 
-        #Download each file - hopefully zip file
-        if folder_files:
-            for zfile in folder_files:
+            #Download each file - hopefully zip file
+            if folder_files:
+                for zfile in folder_files:
 
-                #Grab file from Box.net
-                boxsession.downloadFile(zfile['name'], zfile['id'], access_token)
+                    #Grab file from Box.net
+                    boxsession.downloadFile(zfile['name'], zfile['id'], access_token)
 
-                #Attempt to create a Mitrends Assessment
-                mitrendsession.new_assessment(folder['name'])
+                    #Attempt to create a Mitrends Assessment
+                    mitrendsession.new_assessment(folder['name'])
 
-                #Upload downloaded file
-                mitrendsession.upload_file(zfile['name'], "VNX")
+                    #Upload downloaded file
+                    mitrendsession.upload_file(zfile['name'], "VNX")
 
-                #Submit Mitrend Assessment
-                mitrendsession.submit()
+                    #Submit Mitrend Assessment
+                    mitrendsession.submit()
 
-                #Delete file locally
-                os.remove(zfile['name'])
+                    #Delete file locally
+                    os.remove(zfile['name'])
 
-            #Append Datetime to Folder Name
-            folderWithDate = folder['name'] + "_" + datetime.now().isoformat()
-            boxsession.renameFolder(folder['id'],folderWithDate, access_token)
+                #Append Datetime to Folder Name
+                folderWithDate = folder['name'] + "_" + datetime.now().isoformat()
+                boxsession.renameFolder(folder['id'],folderWithDate, access_token)
 
-            #Move Folder to Archive Folder
-            boxsession.moveFolder(folder['id'], box_archive_folder_id, access_token)
+                #Move Folder to Archive Folder
+                boxsession.moveFolder(folder['id'], box_archive_folder_id, access_token)
+            else:
+                print "Folder is empty"
+    else:
+        print "No New Folders"
