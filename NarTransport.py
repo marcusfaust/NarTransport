@@ -187,7 +187,7 @@ if __name__ == '__main__':
 
                 #Append Datetime to Folder Name
                 folderWithDate = folder['name'] + "_" + datetime.now().isoformat()
-                boxsession.renameFolder(folder['id'],folderWithDate, access_token)
+                boxsession.renameFolder(folder['id'], folderWithDate, access_token)
 
                 #Move Folder to Archive Folder
                 boxsession.moveFolder(folder['id'], box_archive_folder_id, access_token)
