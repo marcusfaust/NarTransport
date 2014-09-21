@@ -11,9 +11,10 @@
     </thead>
     <tbody>
     {% for entry in entries %}
-        <td>{% entry.start_datetime %}</td>
-        <td>{% entry.nars_found %}</td>
-        <td>{% entry.duration %}</td>
+        <td>{{ entry.datetime }}</td>
+        <td>{{ entry.nars_found }}</td>
+        <td>{{ entry.duration }}</td>
     {% endfor %}
     </tbody>
 </table>
+{% endblock %}

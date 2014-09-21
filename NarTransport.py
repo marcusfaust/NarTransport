@@ -143,6 +143,8 @@ class BoxSession:
 if __name__ == '__main__':
 
     start = time.time()
+    start_datetime = datetime.now()
+    nars_found = False
     box_incoming_folder_id = os.environ.get('BOX_INCOMING_FOLDER_ID')
     box_archive_folder_id = os.environ.get('BOX_ARCHIVE_FOLDER_ID')
     incoming_contents = {}
@@ -186,6 +188,8 @@ if __name__ == '__main__':
 
                     #Delete file locally
                     os.remove(zfile['name'])
+                    if not nars_found:
+                        nars_found = True
 
                 #Append Datetime to Folder Name
                 folderWithDate = folder['name'] + "_" + datetime.now().isoformat()
@@ -201,4 +205,6 @@ if __name__ == '__main__':
     duration = time.time() - start
 
     #Add Entry in RunLog
-    models.RunLog()
+    entry = models.RunLog(start_datetime, nars_found, duration)
+    db.session.add(entry)
+    db.session.commit()

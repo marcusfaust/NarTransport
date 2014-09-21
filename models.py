@@ -19,5 +19,10 @@ class RunLog(db.Model):
     nars_found = db.Column(db.Boolean())
     duration = db.Column(db.Float())
 
+    def __init__(self, datetime, nars_found, duration):
+        self.datetime = datetime
+        self.nars_found = nars_found
+        self.duration = duration
+
     def __repr__(self):
         return '<id {}>'.format(self.id)
