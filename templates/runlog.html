@@ -18,7 +18,12 @@
         {% endif %}
             <td>{{ entry.datetime }}</td>
             <td>{{ entry.nars_found }}</td>
-            <td>{{ entry.duration }}</td>
+            {% if entry.duration > 20 %}
+                <td class="danger">
+            {% else %}
+                <td>
+            {% endif %}
+            {{ entry.duration }} s</td>
         </tr>
     {% endfor %}
     </tbody>
