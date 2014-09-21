@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %} - Home {% endblock %}
+{% block content %}
+<form method=post enctype=multipart/form-data role="form">
+  <div class="form-group">
+    <label for="server">CIFS Server Name</label>
+    <input type="text" class="form-control" id="server" name="server" placeholder="Enter CIFS Server Name">
+  </div>
+  <div class="form-group">
+    <label for="path">Filesystem Mountpoint</label>
+    <input type="text" class="form-control" id="path" name="path" placeholder="Enter Filesystem Mountpount (ie. /fs1)">
+  </div>
+  <div class="form-group">
+    <label for="exampleInputFile">CSV File input</label>
+    <input type="file" id="file" name="file">
+    <p class="help-block">CSV file should be two columns formatted as follows:  SHARE NAME, WINDOWS PATH</p>
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{% endblock %}
