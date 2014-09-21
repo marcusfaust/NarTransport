@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect, url_for
 from flask.ext.sqlalchemy import SQLAlchemy
 
 
@@ -9,15 +9,14 @@ db = SQLAlchemy(app)
 import models
 
 @app.route('/')
-def hello_world():
-    return 'Hello World!'
+def index():
+    return redirect(url_for('runlog'))
 
 
 @app.route('/runlog')
 def runlog():
-    entries = models.RunLog.query.all()
+    entries = db.session.query(models.RunLog).order_by(models.RunLog.datetime.desc()).limit(48)
     return render_template('runlog.html', entries = entries)
-
 
 
 if __name__ == '__main__':
