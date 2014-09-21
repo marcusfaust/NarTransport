@@ -11,9 +11,11 @@
     </thead>
     <tbody>
     {% for entry in entries %}
-        <td>{{ entry.datetime }}</td>
-        <td>{{ entry.nars_found }}</td>
-        <td>{{ entry.duration }}</td>
+        <tr>
+            <td>{{ entry.datetime }}</td>
+            <td>{{ entry.nars_found }}</td>
+            <td>{{ entry.duration }}</td>
+        </tr>
     {% endfor %}
     </tbody>
 </table>
