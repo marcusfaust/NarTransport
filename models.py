@@ -17,7 +17,7 @@ class RunLog(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     datetime = db.Column(db.DateTime())
     nars_found = db.Column(db.Boolean())
-    duration = db.Column(db.Integer())
+    duration = db.Column(db.Float())
 
     def __repr__(self):
         return '<id {}>'.format(self.id)

@@ -3,6 +3,7 @@ __author__ = 'marcusfaust'
 import os
 import requests
 import json
+import time
 from datetime import datetime
 from requests.auth import HTTPBasicAuth
 from app import db
@@ -141,6 +142,7 @@ class BoxSession:
 
 if __name__ == '__main__':
 
+    start = time.time()
     box_incoming_folder_id = os.environ.get('BOX_INCOMING_FOLDER_ID')
     box_archive_folder_id = os.environ.get('BOX_ARCHIVE_FOLDER_ID')
     incoming_contents = {}
@@ -195,3 +197,8 @@ if __name__ == '__main__':
                 print "Folder is empty"
     else:
         print "No New Folders"
+
+    duration = time.time() - start
+
+    #Add Entry in RunLog
+    models.RunLog()
