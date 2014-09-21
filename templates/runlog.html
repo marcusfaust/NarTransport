@@ -11,7 +11,11 @@
     </thead>
     <tbody>
     {% for entry in entries %}
-        <tr>
+        {% if entry.nars_found == true %}
+        <tr class="success">
+        {% else %}
+        <tr class="active">
+        {% endif %}
             <td>{{ entry.datetime }}</td>
             <td>{{ entry.nars_found }}</td>
             <td>{{ entry.duration }}</td>
