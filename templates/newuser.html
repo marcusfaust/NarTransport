@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+{% from "_formhelpers.html" import render_field, render_bootstrap_field %}
+<form class="form-horizontal" role="form" method=post action="/newuser">
+    {{ render_bootstrap_field(form.boxuseremail) }}
+    {{ render_bootstrap_field(form.mitrend_user) }}
+    {{ render_bootstrap_field(form.password) }}
+    {{ render_bootstrap_field(form.confirm) }}
+    <div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+        <input type=submit value=Submit class="btn btn-primary">
+    </div>
+    </div>
+</form>
+{% endblock %}
