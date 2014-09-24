@@ -2,10 +2,14 @@ import os
 from flask import Flask, render_template, redirect, url_for, request
 from flask.ext.sqlalchemy import SQLAlchemy
 from forms import NewUserForm
+from flask_sslify import SSLify
 
 
 app = Flask(__name__)
 app.config.from_object('config')
+if 'DYNO' in os.environ: # only trigger SSLify if the app is running on Heroku
+    sslify = SSLify(app)
+
 db = SQLAlchemy(app)
 import models
 
