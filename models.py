@@ -1,10 +1,10 @@
 __author__ = 'marcusfaust'
 
 import os
-from app import db
+from flask.ext.sqlalchemy import SQLAlchemy
 from Crypto.Cipher import ARC4
 
-
+db = SQLAlchemy()
 
 class RefreshToken(db.Model):
     __tablename__ = 'rtokens'

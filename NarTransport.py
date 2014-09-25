@@ -6,8 +6,8 @@ import json
 import time
 from datetime import datetime
 from requests.auth import HTTPBasicAuth
-from app import db
-import models
+from models import db, RefreshToken, RunLog, User
+
 
 
 class MitrendSession:
@@ -53,9 +53,45 @@ class BoxSession:
     box_token_baseurl = "https://app.box.com/api/oauth2/token"
     box_client_id = os.environ.get('BOX_CLIENT_ID')
     box_client_secret = os.environ.get('BOX_CLIENT_SECRET')
+    box_root = os.environ.get('BOX_ROOT')
 
     def __init__(self):
-        self.refresh_token = models.RefreshToken.query.filter_by(id=1).first()
+        self.refresh_token = RefreshToken.query.filter_by(id=1).first()
+
+    def initUser(self, boxemail):
+
+        #Create User Root Folder
+        box_folders_url = self.box_api_baseurl + "/folders"
+        params = {"name": boxemail, "parent": {"id", self.box_root}}
+        headers = {"Authorization": "Bearer " + self.getAccessToken()}
+        r = requests.get(box_folders_url, params=params, headers=headers)
+        results = r.json()
+        user_root = results['id']
+
+        #Create NarTransport-Incoming Folder
+        params = {"name": "NarTransport-Incoming", "parent": {"id", user_root}}
+        headers = {"Authorization": "Bearer " + self.getAccessToken()}
+        r = requests.get(box_folders_url, params=params, headers=headers)
+        results = r.json()
+        user_incoming = results['id']
+
+        #Store Incoming Id
+        models.User.query.filter_by(boxuser=boxemail).update(dict(incoming_folder_id=user_incoming))
+        db.session.commit()
+
+        #Create NarTransport-Archive Folder
+        params = {"name": "NarTransport-Archive", "parent": {"id", user_root}}
+        headers = {"Authorization": "Bearer " + self.getAccessToken()}
+        r = requests.get(box_folders_url, params=params, headers=headers)
+        results = r.json()
+        user_archive = results['id']
+
+        #Store Archive Id
+        models.User.query.filter_by(boxuser=boxemail).update(dict(archive_folder_id=user_archive))
+        db.session.commit()
+
+
+
 
     def getAccessToken(self):
 
