@@ -28,7 +28,9 @@ def runlog():
 def newuser():
     form = NewUserForm(request.form)
     if request.method == 'POST' and form.validate():
-        print "hello"
+        user = models.User(form.boxuseremail.data, form.mitrend_user.data, "True", form.password.data)
+        db.session.add(user)
+        db.session.commit()
     return render_template('newuser.html', title = 'New User Information', form=form)
 
 
