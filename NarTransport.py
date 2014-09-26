@@ -19,7 +19,7 @@ __ARC4_KEY__ = os.environ.get('ARC4_KEY')
 
 class MitrendSession:
     def __init__(self, mitrend_user, mitrend_password):
-        self.baseurl = "https://beta.mitrend.com/api/assessments"
+        self.baseurl = "https://app.mitrend.com/api/assessments"
         self.assessment_id = ""
         self.upload_url = self.baseurl + "/" + self.assessment_id + "/files"
         self.submit_url = self.baseurl + "/" + self.assessment_id + "/submit"
