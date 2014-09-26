@@ -247,7 +247,7 @@ if __name__ == '__main__':
                     else:
                         print "Folder is empty"
             else:
-                print "No New Folders"
+                print "No New Folders for " + ntuser.boxuser
 
     duration = time.time() - start
 
