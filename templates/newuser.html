@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
 {% block content %}
 {% from "_formhelpers.html" import render_field, render_bootstrap_field %}
+    <h2>New User Entry:  <small><sp><sp>Please provide Box account email and Mitrend info. </small></h2>
+    <br>
+    <br>
 <form class="form-horizontal" role="form" method=post action="/newuser">
     {{ render_bootstrap_field(form.boxuseremail) }}
     {{ render_bootstrap_field(form.mitrend_user) }}

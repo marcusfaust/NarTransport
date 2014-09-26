@@ -183,10 +183,13 @@ def newuser():
         db.session.add(user)
         db.session.commit()
         app_boxsession.initUser(form.boxuseremail.data)
-
+        return redirect(url_for('registered'))
     return render_template('newuser.html', title = 'New User Information', form=form)
 
 
+@app.route('/registered')
+def registered():
+    return render_template('registered.html', title = 'You Have Been Registered.')
 
 
 if __name__ == '__main__':
