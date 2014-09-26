@@ -14,7 +14,7 @@ from models import db, RefreshToken, RunLog, User
 db.app = app
 
 __ARC4_KEY__ = os.environ.get('ARC4_KEY')
-arc4 = ARC4.new(__ARC4_KEY__)
+
 
 
 class MitrendSession:
@@ -190,17 +190,18 @@ if __name__ == '__main__':
     ntusers = User.query.filter_by(is_enabled=True).all()
     if ntusers is not None:
         for ntuser in ntusers:
+            box_incoming_folder_id = ntuser.incoming_folder_id
+            box_archive_folder_id = ntuser.archive_folder_id
+            mitrend_user = ntuser.mitrend_user
 
-            box_incoming_folder_id = ntuser.__dict__['incoming_folder_id']
-            box_archive_folder_id = ntuser.__dict__['archive_folder_id']
-            mitrend_user = ntuser.__dict__['mitrend_user']
-            mitrend_password = arc4.decrypt(ntuser.__dict__['password'])
+            arc4 = ARC4.new(__ARC4_KEY__)
+            mitrend_password = arc4.decrypt(ntuser.password_ciphertext)
 
             # Construct Box Session Object
             boxsession = BoxSession()
 
             # Construct MiTrend Session Object
-            mitrendsession = MitrendSession()
+            mitrendsession = MitrendSession(mitrend_user, mitrend_password)
 
             # Refresh Access Token
             access_token = boxsession.getAccessToken()
@@ -239,8 +240,7 @@ if __name__ == '__main__':
 
                         #Append Datetime to Folder Name
                         #folderWithDate = folder['name'] + "_" + datetime.now().isoformat()
-                        boxsession.renameFolder(folder['id'], (folder['name'] + "_" + datetime.now().isoformat()),
-                                                access_token)
+                        boxsession.renameFolder(folder['id'], (folder['name'] + "_" + datetime.now().isoformat()), access_token)
 
                         #Move Folder to Archive Folder
                         boxsession.moveFolder(folder['id'], box_archive_folder_id, access_token)

@@ -40,7 +40,7 @@ class User(db.Model):
 
     id = db.Column(db.Integer(), primary_key=True)
     boxuser = db.Column(db.String(), unique=True)
-    mitrend_user = db.Column(db.String(), unique=True)
+    mitrend_user = db.Column(db.String())
     is_enabled = db.Column(db.Boolean())
     password_ciphertext = db.Column(db.Binary())
     incoming_folder_id = db.Column(db.String())

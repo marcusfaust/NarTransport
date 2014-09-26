@@ -16,7 +16,6 @@ if 'DYNO' in os.environ: # only trigger SSLify if the app is running on Heroku
 db.app = app
 db.init_app(app)
 
-from NarTransport import BoxSession
 
 class BoxSession:
 
