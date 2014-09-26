@@ -6,8 +6,15 @@ import json
 import time
 from datetime import datetime
 from requests.auth import HTTPBasicAuth
+from Crypto.Cipher import ARC4
+from app import app
 from models import db, RefreshToken, RunLog, User
 
+
+db.app = app
+
+__ARC4_KEY__ = os.environ.get('ARC4_KEY')
+arc4 = ARC4.new(__ARC4_KEY__)
 
 
 class MitrendSession:
@@ -76,7 +83,7 @@ class BoxSession:
         user_incoming = results['id']
 
         #Store Incoming Id
-        models.User.query.filter_by(boxuser=boxemail).update(dict(incoming_folder_id=user_incoming))
+        User.query.filter_by(boxuser=boxemail).update(dict(incoming_folder_id=user_incoming))
         db.session.commit()
 
         #Create NarTransport-Archive Folder
@@ -87,7 +94,7 @@ class BoxSession:
         user_archive = results['id']
 
         #Store Archive Id
-        models.User.query.filter_by(boxuser=boxemail).update(dict(archive_folder_id=user_archive))
+        User.query.filter_by(boxuser=boxemail).update(dict(archive_folder_id=user_archive))
         db.session.commit()
 
 
@@ -106,7 +113,7 @@ class BoxSession:
         atoken = results['access_token']
 
         # Store refresh_token
-        models.RefreshToken.query.filter_by(id=1).update(dict(token=rtoken))
+        RefreshToken.query.filter_by(id=1).update(dict(token=rtoken))
         db.session.commit()
 
         return atoken
@@ -181,62 +188,68 @@ if __name__ == '__main__':
     start = time.time()
     start_datetime = datetime.now()
     nars_found = False
-    box_incoming_folder_id = os.environ.get('BOX_INCOMING_FOLDER_ID')
-    box_archive_folder_id = os.environ.get('BOX_ARCHIVE_FOLDER_ID')
+    #box_incoming_folder_id = os.environ.get('BOX_INCOMING_FOLDER_ID')
+    #box_archive_folder_id = os.environ.get('BOX_ARCHIVE_FOLDER_ID')
     incoming_contents = {}
     incoming_folders = []
 
-    # Construct Box Session Object
-    boxsession = BoxSession()
+    ntusers = User.query.filter_by(is_enabled=True).all()
+    for ntuser in ntusers:
 
-    # Construct MiTrend Session Object
-    mitrendsession = MitrendSession()
+        box_incoming_folder_id = ntuser.__dict__['incoming_folder_id']
+        box_archive_folder_id = ntuser.__dict__['archive_folder_id']
 
-    #Refresh Access Token
-    access_token = boxsession.getAccessToken()
+        # Construct Box Session Object
+        boxsession = BoxSession()
 
-    #Obtain Contents of Incoming Folder and Extract Out Folders
-    incoming_contents = boxsession.getFolderContents(box_incoming_folder_id, access_token)
-    incoming_folders = boxsession.getFoldersFromContents(incoming_contents)
+        # Construct MiTrend Session Object
+        mitrendsession = MitrendSession()
 
-    #For Every ZIP File in Subfolders, Download ZIP and Create Assessment
-    if incoming_folders:
-        for folder in incoming_folders:
+        #Refresh Access Token
+        access_token = boxsession.getAccessToken()
 
-            folder_contents = boxsession.getFolderContents(folder['id'], access_token)
-            folder_files = boxsession.getFilesFromContents(folder_contents)
+        #Obtain Contents of Incoming Folder and Extract Out Folders
+        incoming_contents = boxsession.getFolderContents(box_incoming_folder_id, access_token)
+        incoming_folders = boxsession.getFoldersFromContents(incoming_contents)
 
-            #Download each file - hopefully zip file
-            if folder_files:
-                for zfile in folder_files:
+        #For Every ZIP File in Subfolders, Download ZIP and Create Assessment
+        if incoming_folders:
+            for folder in incoming_folders:
 
-                    #Grab file from Box.net
-                    boxsession.downloadFile(zfile['name'], zfile['id'], access_token)
+                folder_contents = boxsession.getFolderContents(folder['id'], access_token)
+                folder_files = boxsession.getFilesFromContents(folder_contents)
 
-                    #Attempt to create a Mitrends Assessment
-                    mitrendsession.new_assessment(folder['name'])
+                #Download each file - hopefully zip file
+                if folder_files:
+                    for zfile in folder_files:
 
-                    #Upload downloaded file
-                    mitrendsession.upload_file(zfile['name'], "VNX")
+                        #Grab file from Box.net
+                        boxsession.downloadFile(zfile['name'], zfile['id'], access_token)
 
-                    #Submit Mitrend Assessment
-                    mitrendsession.submit()
+                        #Attempt to create a Mitrends Assessment
+                        mitrendsession.new_assessment(folder['name'])
 
-                    #Delete file locally
-                    os.remove(zfile['name'])
-                    if not nars_found:
-                        nars_found = True
+                        #Upload downloaded file
+                        mitrendsession.upload_file(zfile['name'], "VNX")
 
-                #Append Datetime to Folder Name
-                #folderWithDate = folder['name'] + "_" + datetime.now().isoformat()
-                boxsession.renameFolder(folder['id'], (folder['name'] + "_" + datetime.now().isoformat()), access_token)
+                        #Submit Mitrend Assessment
+                        mitrendsession.submit()
 
-                #Move Folder to Archive Folder
-                boxsession.moveFolder(folder['id'], box_archive_folder_id, access_token)
-            else:
-                print "Folder is empty"
-    else:
-        print "No New Folders"
+                        #Delete file locally
+                        os.remove(zfile['name'])
+                        if not nars_found:
+                            nars_found = True
+
+                    #Append Datetime to Folder Name
+                    #folderWithDate = folder['name'] + "_" + datetime.now().isoformat()
+                    boxsession.renameFolder(folder['id'], (folder['name'] + "_" + datetime.now().isoformat()), access_token)
+
+                    #Move Folder to Archive Folder
+                    boxsession.moveFolder(folder['id'], box_archive_folder_id, access_token)
+                else:
+                    print "Folder is empty"
+        else:
+            print "No New Folders"
 
     duration = time.time() - start
 
