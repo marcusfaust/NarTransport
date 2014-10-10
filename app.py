@@ -179,7 +179,7 @@ def runlog():
 def newuser():
     form = NewUserForm(request.form)
     if request.method == 'POST' and form.validate():
-        user = User(form.boxuseremail.data, form.mitrend_user.data, "True", form.password.data)
+        user = User(form.boxuseremail.data, form.mitrend_user.data, "False", form.password.data)
         db.session.add(user)
         db.session.commit()
         app_boxsession.initUser(form.boxuseremail.data)
