@@ -1,20 +1,33 @@
 {% extends "base.html" %}
 {% block title %} - Run Log {% endblock %}
 {% block content %}
-<div class="col-lg-6">
-    <h2>Bordered Table</h2>
-        <div class="table-responsive">
-            <table class="table table-bordered table-hover">
-                <thead>
-                    <tr>
-                        <th>Node Name</th>
-                        <th>MAC Address</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {{ for node in nodeinfo['items']: }}
-                </tbody>
-            </table>
-        </div>
-</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Execution Time (GMT)</th>
+            <th>New Nars Founds</th>
+            <th>Run Time Duration</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for entry in entries %}
+        {% if entry.nars_found == true %}
+        <tr class="success">
+        {% else %}
+        <tr class="active">
+        {% endif %}
+            <td>{{ entry.datetime }}</td>
+            <td>{{ entry.nars_found }}</td>
+            {% if entry.duration > 20 %}
+                <td class="danger">
+            {% else %}
+                <td>
+            {% endif %}
+            {{ entry.duration }} s</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
 {% endblock %}
+
