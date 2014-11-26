@@ -1,9 +1,8 @@
 __author__ = 'marcusfaust'
 
-import os
-import requests
-import json
+
 import time
+import os, requests, json
 from datetime import datetime
 from requests.auth import HTTPBasicAuth
 from Crypto.Cipher import ARC4
@@ -36,7 +35,7 @@ class MitrendSession:
     def upload_file(self, filepath, device_type):
         upload_url = self.upload_url = self.baseurl + "/" + str(self.assessment_id) + "/files"
         fileobj = open(filepath, 'rb')
-        params = {"device_name": device_type, "file": "nar.zip"}
+        params = {"device_type": device_type, "file": "nar.zip"}
         files = {"file": fileobj}
 
         print "Mitrend Upload of " + filepath + " Started."
@@ -228,7 +227,7 @@ if __name__ == '__main__':
                             mitrendsession.new_assessment(folder['name'])
 
                             #Upload downloaded file
-                            mitrendsession.upload_file(zfile['name'], "VNX")
+                            mitrendsession.upload_file(zfile['name'], "Clariion")
 
                             #Submit Mitrend Assessment
                             mitrendsession.submit()

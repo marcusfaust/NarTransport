@@ -1,7 +1,7 @@
 __author__ = 'marcusfaust'
 
-from wtforms import Form, TextField, PasswordField
-from wtforms.validators import Required, Email, EqualTo
+from wtforms import Form, TextField, PasswordField, IntegerField
+from wtforms.validators import Required, Email, EqualTo, NumberRange
 
 
 class NewUserForm(Form):
@@ -10,3 +10,5 @@ class NewUserForm(Form):
     password = PasswordField('MiTrend Password', [Required(), EqualTo('confirm', message='Passwords must match')])
     confirm = PasswordField('Repeat Password', [Required()])
 
+class assignRU(Form):
+    ru = IntegerField('RU', [NumberRange(min=1, max=60, message='Invalid Integer')])
