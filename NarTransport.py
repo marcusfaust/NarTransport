@@ -17,6 +17,8 @@ __ARC4_KEY__ = os.environ.get('ARC4_KEY')
 
 
 class MitrendSession:
+
+
     def __init__(self, mitrend_user, mitrend_password):
         self.baseurl = "https://app.mitrend.com/api/assessments"
         self.assessment_id = ""
@@ -53,6 +55,7 @@ class MitrendSession:
 
 
 class BoxSession:
+
     box_api_baseurl = "https://api.box.com/2.0/"
     box_token_baseurl = "https://app.box.com/api/oauth2/token"
     box_client_id = os.environ.get('BOX_CLIENT_ID')
